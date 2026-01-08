@@ -14,7 +14,6 @@ This repository contains the source code and analysis scripts for the study **"G
 
 All raw genetic and phenotypic data for the SPARK cohorts are available upon request from [SFARI Base](https://base.sfari.org/). The full variant discovery, quality control, annotation, and other related procedures were conducted using public softwares as fully detailed in the manuscript.
 
-
 ## Citation
 
 Citation will be updated upon publication.

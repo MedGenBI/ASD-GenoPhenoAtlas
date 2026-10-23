@@ -1,0 +1,4 @@
+Sample ID	Sex	Variant ID	GT	Gene	SFARI score	SFARI S level	Inheritance Pattern	Consequence	Transcript	HGVSc	HGVSp	From ClinVar	ACMG Classification	Evidence
+SP0156911	Male	1_151406013_G_A	0/1	POGZ	1.0	True	AD	stopgain	NM_015100.4	c.3022C>T	p.Arg1008Ter	False	P	PVS1_Strong,PM2_Supporting,PS2_VeryStrong
+SP0161408	Male	2_156329501_GA_G	0/1	NR4A2	1.0	False	AD	frameshift deletion	NM_006186.4	c.685delT	p.S229Pfs*72	False	LP	PVS1_VeryStrong,PM2_Supporting
+SP0161408	Male	2_156329503_CG_C	0/1	NR4A2	1.0	False	AD	frameshift deletion	NM_006186.4	c.683delC	p.A228Gfs*73	False	LP	PVS1_VeryStrong,PM2_Supporting

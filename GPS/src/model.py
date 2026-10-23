@@ -1,159 +1,132 @@
-# src/model.py
-
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Optional, Tuple
+
+from .config import BETA_COL, FDR_SIG_COL, GENE_COL, PHENO_COL
+
 
 class GPSModel:
+
     def __init__(
-        self, 
-        target_gene: str,
-        gps_phenotypes: List[str],
-        assoc_df: pd.DataFrame,
-        binary_traits: List[str],
-        continuous_traits: List[str],
-        k: float = 1.0,
-        x0: float = 0.0
+        self,
+        target_gene,
+        gene_assoc_phenos,
+        association,
+        binary_traits,
+        continuous_traits,
+        continuous_traits_direction,
     ):
-        """
-        Initialize GPS model
-        
-        :param target_gene: target gene name
-        :param gps_phenotypes: list of phenotypes nominally associated with the gene (used for scoring)
-        :param assoc_df: association results DataFrame (containing gene, phenotype, beta, p_fdr columns)
-        :param binary_traits: list of all binary phenotype names
-        :param continuous_traits: list of all continuous phenotype names
-        """
-        self.gene = target_gene
-        self.gps_phenotypes = gps_phenotypes
+        self.gene = str(target_gene)
+        self.gene_assoc_phenos = list(gene_assoc_phenos)
         self.binary_traits = set(binary_traits)
         self.continuous_traits = set(continuous_traits)
-        self.k = k
-        self.x0 = x0
-        
-        self.effects = self._extract_effects(assoc_df)
-        
-        self.normalization_params = {} 
+        self.direction = {
+            str(trait): str(value).strip().lower()
+            for trait, value in continuous_traits_direction.items()
+        }
+        self.effects = self._extract_effects(association)
+        self.normalization_params = {}
         self.is_fitted = False
 
-    def _extract_effects(self, assoc_df: pd.DataFrame) -> Dict:
-        gene_assoc = assoc_df[assoc_df['gene'] == self.gene]
+    def _extract_effects(self, association):
+        rows = association.loc[
+            (association[GENE_COL].astype(str) == self.gene)
+            & association[PHENO_COL].isin(self.gene_assoc_phenos)
+        ]
         effects = {}
-        for _, row in gene_assoc.iterrows():
-            if row['phenotype'] in self.gps_phenotypes:
-                effects[row['phenotype']] = {
-                    'beta': row.get('beta', 0),
-                    'p_fdr': row.get('p_fdr', 1.0)
-                }
+        for _, row in rows.iterrows():
+            beta = pd.to_numeric(pd.Series([row[BETA_COL]]), errors="coerce").iloc[0]
+            if not np.isfinite(beta):
+                raise ValueError(f"Invalid beta for {self.gene}:{row[PHENO_COL]}")
+            effects[str(row[PHENO_COL])] = {
+                "beta": float(beta),
+                "fdr": bool(row[FDR_SIG_COL]),
+            }
         return effects
 
-    def _compute_raw_scores(
-        self, 
-        df_pheno: pd.DataFrame, 
-        pen_factor: float, 
-        conf_factor: float,
-        df_prev: Optional[pd.DataFrame] = None,
-        df_mean: Optional[pd.DataFrame] = None
-    ) -> Tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
-        """
-        Compute raw scores (un-normalized)
-        """
-        score_bin = pd.Series(0.0, index=df_pheno.index)
-        score_cont = pd.Series(0.0, index=df_pheno.index)
-        
-        # 1. Compute contributions
-        for phe in self.gps_phenotypes:
-            if phe not in df_pheno.columns: continue
-            if phe not in self.effects: continue
-            
-            effect_data = self.effects[phe]
-            beta = effect_data['beta']
-            weight = 1.0 if effect_data['p_fdr'] < 0.05 else conf_factor
-            
-            vals = df_pheno[phe].fillna(0)
-            mask = df_pheno[phe].notna().astype(float)
-            
-            contribution = vals * beta * weight * mask
-            
-            if phe in self.binary_traits:
-                score_bin += contribution
-            elif phe in self.continuous_traits:
-                score_cont += contribution
-        
-        # 2. Compute penalty terms - binary traits
-        if df_prev is not None and pen_factor > 0:
-            # find traits not in gps_phenotypes
-            penalty_traits = [p for p in self.binary_traits if p not in self.gps_phenotypes]
-            prev_dict = df_prev.set_index('phenotype')['prevalence'].to_dict()
-            
-            for phe in penalty_traits:
-                if phe in df_pheno.columns and phe in prev_dict:
-                    prev = prev_dict[phe]
-                    mask = (df_pheno[phe] == 1) & df_pheno[phe].notna()
-                    score_bin -= (1 - prev) * mask.astype(float) * pen_factor
+    def _abnormal_deviation(self, trait, values, mean_value):
+        direction = self.direction.get(trait)
+        if direction in {"lower", "decrease", "low"}:
+            return np.maximum(0.0, mean_value - values)
+        if direction in {"higher", "later", "increase", "high"}:
+            return np.maximum(0.0, values - mean_value)
+        raise ValueError(
+            f"Unsupported direction '{direction}' for continuous trait '{trait}'."
+        )
 
-        # 3. Compute penalty terms - continuous traits
-        if df_mean is not None and pen_factor > 0:
-            penalty_traits = [p for p in self.continuous_traits if p not in self.gps_phenotypes]
-            mean_dict = df_mean.set_index('phenotype')['mean'].to_dict()
-            
-            for phe in penalty_traits:
-                if phe in df_pheno.columns and phe in mean_dict:
-                    mean_val = mean_dict[phe]
-                    vals = df_pheno[phe]
-                    mask = vals.notna()
+    def _raw_components(self, phenotype, penalty, confidence, prevalence, means):
+        score_binary = pd.Series(0.0, index=phenotype.index)
+        score_continuous = pd.Series(0.0, index=phenotype.index)
 
-                    if phe.startswith(('DCDQ', 'ABC')):
-                         diff = np.maximum(0, mean_val - vals)
-                    else:
-                         diff = np.maximum(0, vals - mean_val)
-                    score_cont -= np.where(mask, diff, 0) * pen_factor
+        for trait in self.gene_assoc_phenos:
+            if trait not in phenotype.columns or trait not in self.effects:
+                continue
+            effect = self.effects[trait]
+            values = phenotype[trait].fillna(0)
+            observed = phenotype[trait].notna().astype(float)
+            weight = 1.0 if effect["fdr"] else confidence
+            contribution = values * effect["beta"] * weight * observed
 
-        return score_bin, score_cont
+            if trait in self.binary_traits:
+                score_binary += contribution
+            elif trait in self.continuous_traits:
+                score_continuous += contribution
 
-    def fit(
-        self, 
-        df_pheno: pd.DataFrame, 
-        pen_factor: float, 
-        conf_factor: float,
-        df_prev: pd.DataFrame,
-        df_mean: pd.DataFrame
-    ):
-        s_bin, s_cont = self._compute_raw_scores(df_pheno, pen_factor, conf_factor, df_prev, df_mean)
+        prevalence_map = prevalence.set_index("phenotype")["prevalence"].to_dict()
+        for trait in self.binary_traits.difference(self.gene_assoc_phenos):
+            if trait not in phenotype.columns or trait not in prevalence_map:
+                continue
+            observed = (phenotype[trait] == 1) & phenotype[trait].notna()
+            score_binary -= (
+                (1.0 - float(prevalence_map[trait]))
+                * observed.astype(float)
+                * penalty
+            )
 
+        mean_map = means.set_index("phenotype")["mean"].to_dict()
+        for trait in self.continuous_traits.difference(self.gene_assoc_phenos):
+            if trait not in phenotype.columns or trait not in mean_map:
+                continue
+            values = phenotype[trait]
+            deviation = self._abnormal_deviation(
+                trait, values, float(mean_map[trait])
+            )
+            score_continuous -= (
+                np.where(values.notna(), deviation, 0.0) * penalty
+            )
+
+        return score_binary, score_continuous
+
+    def fit(self, phenotype, penalty, confidence, prevalence, means):
+        score_binary, score_continuous = self._raw_components(
+            phenotype, penalty, confidence, prevalence, means
+        )
+        binary_std = score_binary.std()
+        continuous_std = score_continuous.std()
         self.normalization_params = {
-            'mean_bin': s_bin.mean(),
-            'std_bin': s_bin.std() if s_bin.std() > 1e-9 else 1.0,
-            'mean_cont': s_cont.mean(),
-            'std_cont': s_cont.std() if s_cont.std() > 1e-9 else 1.0
+            "mean_binary": float(score_binary.mean()),
+            "std_binary": float(binary_std) if binary_std > 1e-9 else 1.0,
+            "mean_continuous": float(score_continuous.mean()),
+            "std_continuous": (
+                float(continuous_std) if continuous_std > 1e-9 else 1.0
+            ),
         }
         self.is_fitted = True
         return self
 
-    def predict(
-        self, 
-        df_pheno: pd.DataFrame, 
-        pen_factor: float, 
-        conf_factor: float,
-        df_prev: pd.DataFrame,
-        df_mean: pd.DataFrame
-    ) -> pd.Series:
-
+    def predict(self, phenotype, penalty, confidence, prevalence, means):
         if not self.is_fitted:
-            raise ValueError("Model not fitted. Call fit() first.")
-            
-        s_bin, s_cont = self._compute_raw_scores(df_pheno, pen_factor, conf_factor, df_prev, df_mean)
-        
+            raise ValueError("Call fit before predict.")
+
+        score_binary, score_continuous = self._raw_components(
+            phenotype, penalty, confidence, prevalence, means
+        )
         params = self.normalization_params
-        
-        # Z-score standardization
-        z_bin = (s_bin - params['mean_bin']) / params['std_bin']
-        z_cont = (s_cont - params['mean_cont']) / params['std_cont']
-        
-        final_score = (z_bin + z_cont) / 2.0
-        
-        # Sigmoid
-        final_prob = 1.0 / (1.0 + np.exp(-self.k * final_score + self.k * self.x0))
-        
-        return final_prob.fillna(0)
-    
+        z_binary = (
+            score_binary - params["mean_binary"]
+        ) / params["std_binary"]
+        z_continuous = (
+            score_continuous - params["mean_continuous"]
+        ) / params["std_continuous"]
+        final = (z_binary + z_continuous) / 2.0
+        result = 1.0 / (1.0 + np.exp(-final))
+        return result.fillna(0.0)

@@ -1,0 +1,79 @@
+trait	hpo_id	hpo_name
+ABC communication	HP:0034434	Abnormal communication
+ABC daily living skills	HP:0031058	Impairment of activities of daily living
+ABC motor skills	HP:0001270	Motor delay
+ABC socialization	HP:0012433	Abnormal social behavior
+ABC total	HP:0001263	Global developmental delay
+ADHD	HP:0007018	Attention deficit hyperactivity disorder
+Anxiety disorder	HP:0000739	Anxiety
+Attaining bladder control	HP:0000020	Urinary incontinence
+Attaining bowel control	HP:0002607	Bowel incontinence
+Bipolar disorder	HP:0007302	Bipolar affective disorder
+Birth defects	HP:0000118	Phenotypic abnormality
+Birth hypoxia	HP:0012768	Neonatal asphyxia
+Bone/limb defect	HP:0025662	Abnormal fetal skeletal morphology
+Central nervous system defect	HP:0034206	Abnormal fetal central nervous system morphology
+Conduct disorder	HP:0000718	Aggressive behavior
+Craniofacial defect	HP:0000271	Abnormality of the face
+Crawling	HP:0033128	Delayed ability to crawl
+DCD	HP:0011443	Abnormality of coordination
+DCDQ coordination	HP:0002311	Incoordination
+DCDQ handwriting	HP:0007010	Poor fine motor coordination
+DCDQ movement	HP:0007015	Poor gross motor coordination
+DCDQ total	HP:0011443	Abnormality of coordination
+DMDD	HP:0000737	Irritability
+Eating disorder	HP:0011968	Feeding difficulties
+Encopresis	HP:0040183	Encopresis
+Enuresis	HP:0000805	Enuresis
+Epilepsy	HP:0001250	Seizure
+Feeding problems	HP:0011968	Feeding difficulties
+Fetal alcohol syndrome	HP:0034984	Fetal alcohol exposure
+Gastrointestinal defect	HP:0011024	Abnormality of the gastrointestinal tract
+Genitourinary defect	HP:0000119	Abnormality of the genitourinary system
+Growth abnormalities	HP:0001507	Growth abnormality
+Hearing loss/deafness	HP:0000365	Hearing impairment
+Heart/lung defect	HP:0001627|HP:0002088	Abnormal heart morphology|Abnormal lung morphology
+Hoarding disorder	HP:0030212	Collectionism
+Intellectual disability	HP:0001249	Intellectual disability
+Intermittent explosive disorder	HP:0100710	Impulsivity
+Intracranial hemorrhage	HP:0034208	Fetal intracranial hemorrhage
+Language disorder	HP:0000750	Delayed speech and language development
+Learning disability	HP:0001328	Specific learning disability
+Macrocephaly	HP:0000256	Macrocephaly
+Major depressive disorder	HP:0000716	Depression
+Microcephaly	HP:0000252	Microcephaly
+Mutism	HP:0002300	Mutism
+Obesity	HP:0001513	Obesity
+Obsessive-compulsive disorder	HP:0000722	Compulsive behaviors
+Oppositional defiant disorder	HP:0010865	Oppositional defiant disorder
+Perinatal complications	HP:0001787	Abnormal delivery
+Premature birth	HP:0001622	Premature birth
+Prenatal infection	NA	NA
+RBSR compulsive	HP:0008762	Repetitive compulsive behavior
+RBSR injurious	HP:0100716	Self-injurious behavior
+RBSR restricted	HP:0000723	Restrictive behavior
+RBSR ritualistic	HP:5200129	Abnormal rituals
+RBSR sameness	HP:5200130	Insistence on sameness
+RBSR stereotyped	HP:0000733	Motor stereotypy
+RBSR total	HP:0031432	Restricted or repetitive behaviors or interests
+SCQ communication	HP:0034434	Abnormal communication
+SCQ interaction	HP:0012760	Reduced social responsiveness
+SCQ stereotype	HP:0031432	Restricted or repetitive behaviors or interests
+SCQ total	HP:0000729	Autistic behavior
+Schizophrenia	HP:0100753	Schizophrenia
+Separation anxiety disorder	HP:0031468	Separation insecurity
+Short stature	HP:0004322	Short stature
+Sitting upright	HP:0025336	Delayed ability to sit
+Sleep disorder	HP:0002360	Sleep disturbance
+Smiling	HP:0012434	Delayed early-childhood social milestone development
+Social anxiety disorder	HP:6000029	Social anxiety
+Social communication disorder	HP:0012760	Reduced social responsiveness
+Speaking first phrase	HP:0000750	Delayed speech and language development
+Speaking first word	HP:0000750	Delayed speech and language development
+Speaking with combined word	HP:0000750	Delayed speech and language development
+Speech sound disorder	HP:0009088	Speech articulation difficulties
+Spoon-feeding self	HP:0012381	Delayed self-feeding during toddler years
+Strabismus	HP:0000486	Strabismus
+Tourette syndrome	HP:0100033	Tics
+Underweight	HP:0004325	Decreased body weight
+Walking	HP:0031936	Delayed ability to walk

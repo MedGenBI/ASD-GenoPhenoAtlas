@@ -1,97 +1,132 @@
-# src/preprocessor.py
-
 import pickle
-from typing import List, Dict
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from scipy.stats import norm
-from statsmodels.distributions.empirical_distribution import ECDF
+
+from .config import MISSINGNESS_THRESHOLD
 
 
 class PhenotypePreprocessor:
-    def __init__(self, continuous_traits: List[str], binary_traits: List[str], missing_threshold: float = 0.2):
 
-        self.continuous_traits = continuous_traits
-        self.binary_traits = binary_traits
-        self.missing_threshold = missing_threshold
-
-        self.ecdfs: Dict[str, ECDF] = {}                # Save ECDF
-        self.stats_mean: Dict[str, float] = {}          # Save mean of continuous traits
-        self.stats_prevalence: Dict[str, float] = {}    # Save prevalence of binary traits
+    def __init__(
+        self,
+        continuous_traits,
+        binary_traits,
+        missing_threshold=MISSINGNESS_THRESHOLD,
+    ):
+        self.continuous_traits = list(continuous_traits)
+        self.binary_traits = list(binary_traits)
+        self.missing_threshold = float(missing_threshold)
+        self.stats_mean = {}
+        self.stats_prevalence = {}
+        self.reference_values = {}
+        self.fit_summary = {}
         self.is_fitted = False
 
+    def filter_samples(self, df, missing_threshold=None):
+        threshold = (
+            self.missing_threshold
+            if missing_threshold is None
+            else float(missing_threshold)
+        )
+        traits = [
+            trait for trait in self.continuous_traits + self.binary_traits
+            if trait in df.columns
+        ]
+        if not traits:
+            return df.copy()
+
+        missing_rate = df[traits].isna().mean(axis=1)
+        keep = missing_rate <= threshold
+        removed = int((~keep).sum())
+        print(
+            f"Sample filter: removed {removed} samples with missingness "
+            f"> {threshold:.1%}."
+        )
+        return df.loc[keep].copy()
+
+    def _filter_samples(self, df):
+        return self.filter_samples(df)
+
     @staticmethod
-    def _rank_based_int(series: pd.Series) -> pd.Series:
+    def _rank_int(series):
+        ranks = series.rank(na_option="keep")
+        n = int(series.notna().sum())
+        if n == 0:
+            return pd.Series(np.nan, index=series.index, name=series.name)
+        values = norm.ppf((ranks - 0.5) / n)
+        return pd.Series(values, index=series.index, name=series.name)
 
-        ranks = series.rank(na_option='keep')
-        n = series.notna().sum()
-        transformed = norm.ppf((ranks - 0.5) / n)
+    def _reference_rank_int(self, series, trait):
+        reference = np.asarray(self.reference_values.get(trait, []), dtype=float)
+        if reference.size == 0:
+            raise ValueError(
+                f"No derivation reference values are available for '{trait}'."
+            )
 
-        return pd.Series(transformed, index=series.index, name=series.name)
+        values = pd.to_numeric(series, errors="coerce")
+        result = pd.Series(np.nan, index=series.index, dtype=float, name=series.name)
+        valid = values.notna()
+        if not valid.any():
+            return result
 
-    def _filter_samples(self, df: pd.DataFrame) -> pd.DataFrame:
-        
-        target_cols = self.continuous_traits + self.binary_traits
-        valid_cols = [c for c in target_cols if c in df.columns]
-        
-        if not valid_cols:
-            return df
-            
-        missing_rates = df[valid_cols].isna().mean(axis=1)
-        kept_mask = missing_rates <= self.missing_threshold
-        
-        n_removed = (~kept_mask).sum()
-        print(f"Filtering: Removed {n_removed} samples with missing rate > {self.missing_threshold:.1%}")
-        
-        return df[kept_mask].copy()
+        observed = values.loc[valid].to_numpy(dtype=float)
+        left = np.searchsorted(reference, observed, side="left")
+        right = np.searchsorted(reference, observed, side="right")
+        average_rank = (left + right + 1.0) / 2.0
+        n_reference = float(reference.size)
+        probability = (average_rank - 0.5) / n_reference
+        probability = np.clip(probability, 0.5 / n_reference, 1.0 - 0.5 / n_reference)
+        result.loc[valid] = norm.ppf(probability)
+        return result
 
-    def fit(self, df: pd.DataFrame):
+    def fit_transform(self, df):
+        clean = self.filter_samples(df)
+        processed = clean.copy()
 
-        print("Fitting preprocessor: Learning ECDFs...")
-
-        df_clean = self._filter_samples(df)
-        
         for trait in self.continuous_traits:
-            if trait in df_clean.columns:
-                valid_values = df_clean[trait].dropna()
-                if len(valid_values) > 0:
-                    self.ecdfs[trait] = ECDF(valid_values)
-        
+            if trait in processed.columns:
+                raw_values = pd.to_numeric(processed[trait], errors="coerce")
+                self.reference_values[trait] = np.sort(
+                    raw_values.dropna().to_numpy(dtype=float)
+                )
+                processed[trait] = self._rank_int(processed[trait])
+
+        continuous_columns = [
+            trait for trait in self.continuous_traits if trait in processed.columns
+        ]
+        binary_columns = [
+            trait for trait in self.binary_traits if trait in processed.columns
+        ]
+        self.stats_mean = processed[continuous_columns].mean().to_dict()
+        self.stats_prevalence = processed[binary_columns].mean().to_dict()
+        self.fit_summary = {
+            "input_n_samples": int(len(df)),
+            "fit_n_samples": int(len(processed)),
+            "removed_n_samples": int(len(df) - len(processed)),
+            "missing_threshold": self.missing_threshold,
+            "continuous_traits": self.continuous_traits,
+            "binary_traits": self.binary_traits,
+        }
         self.is_fitted = True
-        return self
+        return processed
 
-    def transform(self, df: pd.DataFrame, is_training: bool = True) -> pd.DataFrame:
-        """
-        Data transform
-        """
-        if not self.is_fitted:
-            raise ValueError("Preprocessor must be fitted before transform.")
-
-        # 1. Samples filtering
-        df_processed = self._filter_samples(df).copy()
-        
-        # 2. INT transformation
-        print("Applying Rank-based Inverse Normal Transformation...")
-        for trait in self.continuous_traits:
-            if trait in df_processed.columns:
-                df_processed[trait] = self._rank_based_int(df_processed[trait])
-
+    def transform(self, df, is_training=False, missing_threshold=None):
         if is_training:
-            print("Calculating statistics (Mean & Prevalence) on transformed data...")
-            # Continuous traits mean
-            self.stats_mean = df_processed[self.continuous_traits].mean().to_dict()
-            # Binary traits prevalence
-            self.stats_prevalence = df_processed[self.binary_traits].mean().to_dict()
-            
-        return df_processed
+            return self.fit_transform(df)
+        if not self.is_fitted and not is_training:
+            raise ValueError("The preprocessor must be fitted before transform().")
 
-    def fit_transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        """fit & transform"""
-        self.fit(df)
-        return self.transform(df, is_training=True)
-    
-    def save(self, path: str):
-        with open(path, 'wb') as f:
-            pickle.dump(self, f)
-        print(f"Preprocessor saved to {path}")
+        clean = self.filter_samples(df, missing_threshold=missing_threshold)
+        processed = clean.copy()
+
+        for trait in self.continuous_traits:
+            if trait in processed.columns:
+                processed[trait] = self._reference_rank_int(processed[trait], trait)
+        return processed
+
+    def save(self, path):
+        with open(path, "wb") as handle:
+            pickle.dump(self, handle)
+        print(f"Saved preprocessor: {path}")

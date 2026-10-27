@@ -1,0 +1,4 @@
+spid,sex,age_at_registration_months,superclass,WES_batch,prs_score
+SPID01,Male,123,EUR,WES1,-0.1943285572479276
+SPID02,Male,611,EUR,WES2,1.167266558584739
+SPID03,Female,65,EUR,WES1,0.1711806827456353

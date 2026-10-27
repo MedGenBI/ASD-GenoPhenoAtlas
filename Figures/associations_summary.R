@@ -4,30 +4,87 @@ library(ggplot2)
 
 
 work_dir <- "/home/mgbi/projects/gpasd/plots"
-
 setwd(work_dir)
 
+association_results_path <- 'data/geno_pheno_association_results.tsv'
+trait_metadata_path <- "data/trait_metadata.csv"
+
+required_trait_metadata_columns <- c("trait_id", "trait_label")
+
+trait_metadata <- read.csv(
+  trait_metadata_path,
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+
+trait_label_by_id <- setNames(trait_metadata$trait_label, trait_metadata$trait_id)
+
+association_results <- read.csv(
+  association_results_path,
+  check.names = FALSE,
+  sep = "\t"
+) %>%
+  rename(
+    trait_id = Trait,
+    gene = Gene,
+    beta = Beta,
+    p_value = P,
+    efdr_significant = Empirical_FDR_Sig
+  ) %>%
+  mutate(efdr_significant = as.logical(as.character(efdr_significant))) %>%
+  left_join(
+    trait_metadata %>% select(trait_id, trait_label),
+    by = "trait_id"
+  )
+
+unmapped_association_trait_ids <- association_results %>%
+  filter(is.na(trait_label)) %>%
+  distinct(trait_id) %>%
+  pull(trait_id)
+if (length(unmapped_association_trait_ids) > 0) {
+  stop(
+    "The following Trait IDs are missing from trait_metadata: ",
+    paste(unmapped_association_trait_ids, collapse = ", ")
+  )
+}
+
+significance_type_levels <- c("efdr_sig_count", "nominal_p_sig_count")
 
 ############################# 1. Bar Chart: Genes ##############################
 
-bar_df <- data.frame(
-  category = factor(
-    c("FDR < 0.05", "p < 0.05", "Not Significant"),
-    levels = c("FDR < 0.05", "p < 0.05", "Not Significant")
+gene_association_status_summary <- data.frame(
+  association_status = factor(
+    c("eFDR < 0.05", "P < 0.05", "Not Significant"),
+    levels = c("eFDR < 0.05", "P < 0.05", "Not Significant")
   ),
-  count = c(48, 173, 13)
+  gene_count = c(51, 179, 6)
 )
 
-bar_colors <- c("FDR < 0.05" = "#1E88E5",
-                "p < 0.05" = "#F8C9A8",
-                "Not Significant" = "grey80")
+association_status_colors <- c("eFDR < 0.05" = "#1E88E5",
+                               "P < 0.05" = "#F8C9A8",
+                               "Not Significant" = "grey80")
 
-p <- ggplot(bar_df, aes(x = category, y = count, fill = category)) +
-  geom_bar(stat = "identity", width = 0.62, color = "black", linewidth = 0) + 
-  geom_text(aes(label = count), vjust = -0.7, size = 2, fontface = "plain", color = "black") + 
-  scale_fill_manual(values = bar_colors) +
-  scale_y_continuous(expand = expansion(mult = c(0.02, 0.13)), breaks = scales::pretty_breaks(n = 6)) +
-  ggprism::theme_prism(base_size = 5.5, border = TRUE) +   
+association_status_border_colors <- c(
+  "eFDR < 0.05" = "#1565C0",
+  "P < 0.05" = "#C97845",
+  "Not Significant" = "#969696"
+)
+gene_status_bar_width <- 0.62
+
+gene_association_status_plot <- ggplot(
+  gene_association_status_summary,
+  aes(x = association_status, y = gene_count, fill = association_status)
+) +
+  geom_col(
+    aes(colour = association_status),
+    width = gene_status_bar_width,
+    linewidth = 0.35
+  ) +
+  geom_text(aes(label = gene_count), vjust = -0.7, size = 2, fontface = "plain", color = "black") +
+  scale_fill_manual(values = association_status_colors) +
+  scale_colour_manual(values = association_status_border_colors, guide = "none") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.13)), breaks = scales::pretty_breaks(n = 6)) +
+  ggprism::theme_prism(base_size = 5.5, border = TRUE) +
   labs(x = NULL, y = "gene counts") +
   theme(
     
@@ -36,37 +93,55 @@ p <- ggplot(bar_df, aes(x = category, y = count, fill = category)) +
     legend.position = "none",
     plot.margin = margin(t = 10, r = 5, b = 5, l = 5),
     plot.title = element_text(face = "plain", size = 7, hjust = 0.5),
-    panel.border = element_blank(),
-    axis.line = element_line(linewidth = 0.15, color = "black"),
-    axis.ticks = element_line(linewidth = 0.15),
-    axis.ticks.length = unit(0.05, "cm"),
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.45),
+    axis.line = element_blank(),
+    axis.ticks = element_line(linewidth = 0.15, colour = "black"),
+    axis.ticks.length = unit(0.05, "cm")
   )
 
-## Save
-ggsave('output/ExtendFig4a.pdf', p, width = 2, height = 2, dpi = 300, units = "in")
-################################################################################
+ggsave('association_summary_a.pdf', gene_association_status_plot, width = 2, height = 2, dpi = 300, units = "in")
 
 
 ######################### 2. Stacked Bar Chart: Genes ##########################
-data_fdr <- read.csv('../data/geno_pheno_associations.fdr_48genes.tsv', check.names = F, sep = '\t')
+gene_association_results <- association_results %>%
+  group_by(gene) %>%
+  filter(any(efdr_significant, na.rm = TRUE)) %>%
+  ungroup()
 
-sig_counts <- data_fdr %>%
+gene_significance_summary <- gene_association_results %>%
   group_by(gene) %>%
   summarise(
-    p_sig = sum(p < 0.05, na.rm = TRUE),
-    q_sig = sum(p_fdr < 0.05, na.rm = TRUE),
+    nominal_p_sig_count = sum(p_value < 0.05, na.rm = TRUE),
+    efdr_sig_count = sum(efdr_significant, na.rm = TRUE),
     .groups = "drop"
   ) %>%
-  arrange(desc(q_sig), desc(p_sig)) %>%
-  mutate(gene = factor(gene, levels = gene)) %>%
-  pivot_longer(c(p_sig, q_sig), names_to = "sig_type", values_to = "count")
 
-p <- ggplot(sig_counts, aes(x = gene, y = count, fill = sig_type)) +
-  geom_col(position = "stack", width = 0.7) +
+  arrange(desc(efdr_sig_count), desc(nominal_p_sig_count)) %>%
+  mutate(gene = factor(gene, levels = gene))
+
+gene_significance_long <- gene_significance_summary %>%
+  pivot_longer(
+    c(nominal_p_sig_count, efdr_sig_count),
+    names_to = "significance_type",
+    values_to = "significant_count"
+  ) %>%
+  mutate(
+    significance_type = factor(
+      significance_type,
+      levels = significance_type_levels
+    )
+  )
+
+gene_significance_bar_plot <- ggplot(
+  gene_significance_long,
+  aes(x = gene, y = significant_count, fill = significance_type)
+) +
+  geom_col(position = position_stack(reverse = TRUE), width = 0.7) +
   scale_fill_manual(
-    values = c(p_sig = "#BBDEFB", q_sig = "#1E88E5"),
-    labels = c("p_sig" = "p < 0.05", "q_sig" = "FDR < 0.05"),
+    breaks = significance_type_levels,
+    values = c(nominal_p_sig_count = "#BBDEFB", efdr_sig_count = "#1E88E5"),
+    labels = c(nominal_p_sig_count = "P < 0.05", efdr_sig_count = "eFDR < 0.05"),
     name = NULL
   ) +
   labs(x = NULL, y = "Significant counts") +
@@ -83,34 +158,45 @@ p <- ggplot(sig_counts, aes(x = gene, y = count, fill = sig_type)) +
     panel.grid = element_blank()
   )
 
-## Save
-ggsave('output/ExtendFig4b.pdf', p, width = 4.69, height = 2, dpi = 300, units = "in")
-################################################################################
-
+ggsave('association_summary_b.pdf', gene_significance_bar_plot, width = 4.69, height = 2, dpi = 300, units = "in")
 
 
 ######################## 3. Stacked Bar Chart: Traits ##########################
-data_p <- read.csv('../data/geno_pheno_associations.p_173genes.tsv' , check.names = F, sep = '\t')
-
-sig_counts <- data_p %>%
-  group_by(phenotype) %>%
+trait_significance_summary <- association_results %>%
+  group_by(trait_id, trait_label) %>%
   summarise(
-    p_sig = sum(p < 0.05, na.rm = TRUE),
-    q_sig = sum(p_fdr < 0.05, na.rm = TRUE),
+    nominal_p_sig_count = sum(p_value < 0.05, na.rm = TRUE),
+    efdr_sig_count = sum(efdr_significant, na.rm = TRUE),
     .groups = "drop"
   ) %>%
-  mutate(sort_key_q = q_sig, sort_key_p = p_sig) %>%
-  arrange(desc(sort_key_q), desc(sort_key_p)) %>%
-  mutate(phenotype = factor(phenotype, levels = phenotype)) %>%
-  pivot_longer(c(p_sig, q_sig), names_to = "sig_type", values_to = "count")
+  arrange(desc(efdr_sig_count), desc(nominal_p_sig_count)) %>%
+  mutate(trait_id = factor(trait_id, levels = trait_id))
 
-p <- ggplot(sig_counts, aes(x = phenotype, y = count, fill = sig_type)) +
-  geom_col(position = "stack", width = 0.7) +
+trait_significance_long <- trait_significance_summary %>%
+  pivot_longer(
+    c(nominal_p_sig_count, efdr_sig_count),
+    names_to = "significance_type",
+    values_to = "significant_count"
+  ) %>%
+  mutate(
+    significance_type = factor(
+      significance_type,
+      levels = significance_type_levels
+    )
+  )
+
+trait_significance_bar_plot <- ggplot(
+  trait_significance_long,
+  aes(x = trait_id, y = significant_count, fill = significance_type)
+) +
+  geom_col(position = position_stack(reverse = TRUE), width = 0.7) +
   scale_fill_manual(
-    values = c(p_sig = "#BBDEFB", q_sig = "#1E88E5"),
-    labels = c("p_sig" = "p < 0.05", "q_sig" = "FDR < 0.05"),
+    breaks = significance_type_levels,
+    values = c(nominal_p_sig_count = "#BBDEFB", efdr_sig_count = "#1E88E5"),
+    labels = c(nominal_p_sig_count = "P < 0.05", efdr_sig_count = "eFDR < 0.05"),
     name = NULL
   ) +
+  scale_x_discrete(labels = trait_label_by_id) +
   labs(x = NULL, y = "Significant counts") +
   scale_y_continuous(expand = c(0, 1)) +
   theme_bw(base_size = 5.5) +
@@ -125,6 +211,4 @@ p <- ggplot(sig_counts, aes(x = phenotype, y = count, fill = sig_type)) +
     panel.grid = element_blank()
   )
 
-## Save
-ggsave('output/ExtendFig4c.pdf', p, width = 6.69, height = 2.8, dpi = 300, units = "in")
-################################################################################
+ggsave('association_summary_c.pdf', trait_significance_bar_plot, width = 6.69, height = 2.8, dpi = 300, units = "in")

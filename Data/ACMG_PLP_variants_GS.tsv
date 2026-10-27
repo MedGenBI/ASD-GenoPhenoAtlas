@@ -1,0 +1,34 @@
+Sample ID	Sex	Variant ID	GT	Gene	SFARI score	SFARI S level	Inheritance Pattern	Consequence	Transcript	HGVSc	HGVSp	From ClinVar	ACMG Classification	Evidence
+SP0230684	Male	2_165309413_C_T	0/1	SCN2A	1.0	False	AD	stopgain	NM_001040142.2	c.667C>T	p.Arg223Ter	False	LP	PVS1_VeryStrong,PM2_Supporting
+SP0302927	Male	2_165314008_A_G	0/1	SCN2A	1.0	False	AD	nonsynonymous SNV	NM_001040142.2	c.1283A>G	p.Tyr428Cys	False	P	PM2_Supporting,PP2_Supporting,PS2_Strong,PP3_Strong
+SP0112003	Male	2_165386919_TG_T	0/1	SCN2A	1.0	False	AD	frameshift deletion	NM_001040142.2	c.4726delG	p.G1576Efs*5	False	P	PVS1_VeryStrong,PM2_Supporting,PS2_Strong
+SP0205964	Female	3_11025786_C_T	0/1	SLC6A1	1.0	True	AD	nonsynonymous SNV	NM_003042.4	c.863C>T	p.Ala288Val	True	P	Criteria provided, multiple submitters, no conflicts
+SP0147668	Female	3_70977652_T_A	0/1	FOXP1	1.0	True	AD	nonsynonymous SNV	NM_001349338.3	c.1419A>T	p.Leu473Phe	False	LP	PM2_Supporting,PS2_Strong,PP3_Strong
+SP0234769	Male	6_33435563_G_T	0/1	SYNGAP1	1.0	True	AD	stopgain	NM_006772.3	c.712G>T	p.Glu238Ter	False	P	PVS1_VeryStrong,PM2_Supporting,PS2_Strong
+SP0204166	Female	6_43007265_G_A	0/1	PPP2R5D	1.0	True	AD	nonsynonymous SNV	NM_006245.4	c.592G>A	p.Glu198Lys	True	P	Criteria provided, multiple submitters, no conflicts
+SP0261898	Male	6_43007275_C_G	0/1	PPP2R5D	1.0	True	AD	nonsynonymous SNV	NM_006245.4	c.602C>G	p.Pro201Arg	True	P	Criteria provided, multiple submitters, no conflicts
+SP0157896	Male	6_43007292_T_C	0/1	PPP2R5D	1.0	True	AD	nonsynonymous SNV	NM_006245.4	c.619T>C	p.Trp207Arg	True	P	Criteria provided, multiple submitters, no conflicts
+SP0267960	Male	9_137710979_A_AG	0/1	EHMT1	1.0	True	AD	frameshift insertion	NM_024757.5	c.35dupG	p.E14Gfs*23	True	P	Criteria provided, multiple submitters, no conflicts
+SP0208822	Male	10_87952142_C_T	0/1	PTEN	1.0	True	AD	nonsynonymous SNV	NM_000314.8	c.517C>T	p.Arg173Cys	True	P	Reviewed by expert panel
+SP0119081	Female	10_87960912_T_G	0/1	PTEN	1.0	True	AD	nonsynonymous SNV	NM_000314.8	c.820T>G	p.Trp274Gly	False	LP	PM2_Supporting,PM5_Moderate,PP2_Supporting,PS2_Strong,PP3_Supporting
+SP0166358	Female	11_64690446_GC_G	0/1	NRXN2	1.0	False	AD	frameshift deletion	NM_015080.4	c.808delG	p.A270Pfs*57	False	LP	PVS1_VeryStrong
+SP0146826	Male	11_118473470_A_AC	0/1	KMT2A	1.0	True	AD	frameshift insertion	NM_001197104.2	c.2312dupC	p.S774Vfs*12	True	P	Criteria provided, multiple submitters, no conflicts
+SP0272436	Female	14_21403214_T_A	0/1	CHD8	1.0	True	AD	splicing	NM_001170629.2	c.3519-2A>T	-	False	P	PVS1_VeryStrong,PM2_Supporting,PS2_Strong
+SP0302201	Female	14_21406890_C_A	0/1	CHD8	1.0	True	AD	nonsynonymous SNV	NM_001170629.2	c.2873G>T	p.Cys958Phe	False	LP	PM2_Supporting,PP2_Supporting,PS2_Strong,PP3_Moderate
+SP0147177	Male	16_2071921_AGT_A	0/1	TSC2	1.0	True	AD	frameshift deletion	NM_000548.5	c.2085_2086del	p.C696Lfs*6	False	P	PVS1_VeryStrong,PM2_Supporting,PS2_Strong
+SP0301797	Female	16_2084477_C_CA	0/1	TSC2	1.0	True	AD	frameshift insertion	NM_000548.5	c.4256dupA	p.S1420Vfs*104	False	P	PVS1_VeryStrong,PM2_Supporting,PS2_Strong
+SP0315192	Female	16_30723674_TTCCCAAC_T	0/1	SRCAP	1.0	False	AD	frameshift deletion	NM_006662.3	c.4251_4257del	p.N1419Lfs*43	False	LP	PVS1_VeryStrong,PM2_Supporting
+SP0239584	Male	16_30737131_CGGGGGCT_C	0/1	SRCAP	1.0	False	AD	frameshift deletion	NM_006662.3	c.7092_7098del	p.A2366Mfs*107	False	LP	PVS1_Strong,PM2_Supporting,PS2_Strong
+SP0304522	Male	16_89282770_CTT_C	0/1	ANKRD11	1.0	True	AD	frameshift deletion	NM_013275.6	c.3770_3771del	p.K1257Rfs*25	True	P	Criteria provided, multiple submitters, no conflicts
+SP0119666	Male	16_89282918_C_CT	0/1	ANKRD11	1.0	True	AD	frameshift insertion	NM_013275.6	c.3623dupA	p.K1209Efs*3	False	P	PVS1_VeryStrong,PM2_Supporting,PS2_Strong
+SP0223738	Male	22_41140169_C_G	0/1	EP300	1.0	True	AD	nonsynonymous SNV	NM_001429.4	c.1790C>G	p.Pro597Arg	False	LP	PM2_Supporting,PS2_Strong,PP3_Supporting
+SP0104134	Male	22_42211428_TCA_T	0/1	TCF20	1.0	True	AD	stopgain	NM_001378418.1	c.3876_3877del	p.C1293Lfs*29	False	P	PVS1_VeryStrong,PM2_Supporting,PS2_Strong
+SP0129695	Male	22_50684632_CCA_C	0/1	SHANK3	1.0	True	AD	frameshift deletion	NM_001372044.2	c.1237_1238del	p.His413fs	False	P	PVS1_VeryStrong,PM2_Supporting,PS2_Strong
+SP0208559	Male	2_148469847_G_GAC	0/1	MBD5	1.0	True	AD	frameshift insertion	NM_001378120.1	c.1904_1905insAC	p.E636Lfs*10	False	P	PVS1_VeryStrong,PS4_Strong,PM2_Supporting
+SP0236252	Male	2_148469847_G_GAC	0/1	MBD5	1.0	True	AD	frameshift insertion	NM_001378120.1	c.1904_1905insAC	p.E636Lfs*10	False	P	PVS1_VeryStrong,PS4_Strong,PM2_Supporting
+SP0092200	Male	2_166046927_A_G	0/1	SCN1A	1.0	True	AD	nonsynonymous SNV	NM_001165963.4	c.1220T>C	p.Ile407Thr	False	LP	PM1_Moderate,PM2_Supporting,PP2_Supporting,PP3_Strong
+SP0236252	Male	4_84810231_A_T	0/1	WDFY3	1.0	False	AD	stopgain	NM_014991.6	c.2001T>A	p.Cys667Ter	False	LP	PVS1_VeryStrong,PM2_Supporting
+SP0101097	Male	4_139357557_T_TA	0/1	NAA15	1.0	True	AD	splicing	NM_057175.5	c.1257+2->A	-	False	LP	PVS1_VeryStrong
+SP0097174	Male	7_100677365_G_A	0/1	GNB2		True	AD	nonsynonymous SNV	NM_005273.4	c.217G>A	p.Ala73Thr	True	P	Criteria provided, multiple submitters, no conflicts
+SP0206027	Male	19_41985055_T_G	0/1	ATP1A3	2.0	True	AD	nonsynonymous SNV	NM_152296.5	c.856A>C	p.Thr286Pro	False	LP	PP2_Supporting,PS2_Strong,PP3_Moderate
+SP0140729	Female	2_199328875_G_C	0/1	SATB2	2.0	True	AD	nonsynonymous SNV	NM_001172509.2	c.1209C>G	p.Asp403Glu	False	LP	PM1_Moderate,PM2_Supporting,PP2_Supporting,PP3_Moderate

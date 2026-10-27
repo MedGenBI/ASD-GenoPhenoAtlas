@@ -1,0 +1,79 @@
+trait_id,trait_label,trait_type,effect_direction,clinical_domain
+SCQ_total,SCQ total,quantitative,higher,Scales
+SCQ_communication,SCQ communication,quantitative,higher,Scales
+SCQ_interaction,SCQ interaction,quantitative,higher,Scales
+SCQ_stereotype,SCQ stereotype,quantitative,higher,Scales
+RBSR_total,RBS-R total,quantitative,higher,Scales
+RBSR_stereotyped,RBS-R stereotyped,quantitative,higher,Scales
+RBSR_injurious,RBS-R injurious,quantitative,higher,Scales
+RBSR_compulsive,RBS-R compulsive,quantitative,higher,Scales
+RBSR_ritualistic,RBS-R ritualistic,quantitative,higher,Scales
+RBSR_sameness,RBS-R sameness,quantitative,higher,Scales
+RBSR_restricted,RBS-R restricted,quantitative,higher,Scales
+DCDQ_total,DCDQ total,quantitative,lower,Scales
+DCDQ_movement,DCDQ movement,quantitative,lower,Scales
+DCDQ_handwriting,DCDQ handwriting,quantitative,lower,Scales
+DCDQ_coordination,DCDQ coordination,quantitative,lower,Scales
+ABC_total,ABC total,quantitative,lower,Scales
+ABC_communication,ABC communication,quantitative,lower,Scales
+ABC_daily_living_skills,ABC daily living skills,quantitative,lower,Scales
+ABC_socialization,ABC socialization,quantitative,lower,Scales
+ABC_motor_skills,ABC motor skills,quantitative,lower,Scales
+Smiling,Smiling,quantitative,higher,Developmental Milestones
+Sitting_upright,Sitting upright,quantitative,higher,Developmental Milestones
+Crawling,Crawling,quantitative,higher,Developmental Milestones
+Walking,Walking,quantitative,higher,Developmental Milestones
+Spoon_feeding_self,Spoon-feeding self,quantitative,higher,Developmental Milestones
+Speaking_first_word,Speaking first word,quantitative,higher,Developmental Milestones
+Speaking_with_combined_word,Speaking with combined word,quantitative,higher,Developmental Milestones
+Speaking_first_phrase,Speaking first phrase,quantitative,higher,Developmental Milestones
+Attaining_bladder_control,Attaining bladder control,quantitative,higher,Developmental Milestones
+Attaining_bowel_control,Attaining bowel control,quantitative,higher,Developmental Milestones
+ADHD,ADHD,binary,,Mental Health and Psychiatric Conditions
+Conduct_disorder,Conduct disorder,binary,,Mental Health and Psychiatric Conditions
+Intermittent_explosive_disorder,Intermittent explosive disorder,binary,,Mental Health and Psychiatric Conditions
+Oppositional_defiant_disorder,Oppositional defiant disorder,binary,,Mental Health and Psychiatric Conditions
+Anxiety_disorder,Anxiety disorder,binary,,Mental Health and Psychiatric Conditions
+Bipolar_disorder,Bipolar disorder,binary,,Mental Health and Psychiatric Conditions
+Major_depressive_disorder,Major depressive disorder,binary,,Mental Health and Psychiatric Conditions
+DMDD,DMDD,binary,,Mental Health and Psychiatric Conditions
+Hoarding_disorder,Hoarding disorder,binary,,Mental Health and Psychiatric Conditions
+Obsessive_compulsive_disorder,Obsessive-compulsive disorder,binary,,Mental Health and Psychiatric Conditions
+Separation_anxiety_disorder,Separation anxiety disorder,binary,,Mental Health and Psychiatric Conditions
+Social_anxiety_disorder,Social anxiety disorder,binary,,Mental Health and Psychiatric Conditions
+Schizophrenia,Schizophrenia,binary,,Mental Health and Psychiatric Conditions
+Sleep_disorder,Sleep disorder,binary,,Mental Health and Psychiatric Conditions
+Mutism,Mutism,binary,,Mental Health and Psychiatric Conditions
+Social_communication_disorder,Social communication disorder,binary,,Mental Health and Psychiatric Conditions
+Eating_disorder,Eating disorder,binary,,Mental Health and Psychiatric Conditions
+Encopresis,Encopresis,binary,,Mental Health and Psychiatric Conditions
+Enuresis,Enuresis,binary,,Mental Health and Psychiatric Conditions
+Tourette_Syndrome,Tourette syndrome,binary,,Neurodevelopmental and Related Conditions
+Epilepsy,Epilepsy,binary,,Neurodevelopmental and Related Conditions
+Intellectual_disability,Intellectual disability,binary,,Neurodevelopmental and Related Conditions
+Language_disorder,Language disorder,binary,,Neurodevelopmental and Related Conditions
+Learning_disability,Learning disability,binary,,Neurodevelopmental and Related Conditions
+DCD,DCD,binary,,Neurodevelopmental and Related Conditions
+Speech_sound_disorder,Speech sound disorder,binary,,Neurodevelopmental and Related Conditions
+Hearing_loss.deafness,Hearing loss/deafness,binary,,Neurodevelopmental and Related Conditions
+Strabismus,Strabismus,binary,,Neurodevelopmental and Related Conditions
+Feeding_problems,Feeding problems,binary,,Neurodevelopmental and Related Conditions
+Perinatal_complications,Perinatal complications,binary,,Perinatal Complications
+Fetal_alcohol_syndrome,Fetal alcohol syndrome,binary,,Perinatal Complications
+Intracranial_hemorrhage,Intracranial hemorrhage,binary,,Perinatal Complications
+Birth_hypoxia,Birth hypoxia,binary,,Perinatal Complications
+Prenatal_infection,Prenatal infection,binary,,Perinatal Complications
+Premature_birth,Premature birth,binary,,Perinatal Complications
+Birth_defects,Birth defects,binary,,Birth Defects
+Bone.limb_defect,Bone/limb defect,binary,,Birth Defects
+CNS_defect,Central nervous system defect,binary,,Birth Defects
+Craniofacial_defect,Craniofacial defect,binary,,Birth Defects
+Gastrointestinal_defect,Gastrointestinal defect,binary,,Birth Defects
+Heart.lung_defect,Heart/lung defect,binary,,Birth Defects
+Genitourinary_defect,Genitourinary defect,binary,,Birth Defects
+Growth_abnormalities,Growth abnormalities,binary,,Growth Abnormalities
+Macrocephaly,Macrocephaly,binary,,Growth Abnormalities
+Microcephaly,Microcephaly,binary,,Growth Abnormalities
+Underweight,Underweight,binary,,Growth Abnormalities
+Obesity,Obesity,binary,,Growth Abnormalities
+Short_stature,Short stature,binary,,Growth Abnormalities
